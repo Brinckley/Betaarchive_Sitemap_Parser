@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-	// getting page with links
 	pageURL := "https://www.betaarchive.com/database/sitemap.php"
 
 	AllLinks := ScrapPageURLs(pageURL)
@@ -27,7 +26,6 @@ func ScrapPageURLs(url string) []string {
 		// printing selected link
 		// fmt.Println(e.DOM.Text())
 		Links = append(Links, e.DOM.Text())
-		// diving in selected link
 
 	})
 	c.Visit(url)
