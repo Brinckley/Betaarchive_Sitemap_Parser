@@ -10,27 +10,41 @@ func main() {
 	pageURL := "https://www.betaarchive.com/database/sitemap.php"
 	//	SliceToFile([]string{pageURL, pageURL})
 
-	AllLinks := ScrapPageURLs(pageURL)
-	AbandonWareLinks := CheckAbandon(AllLinks)
-	OriginalReleaseLinks := CheckRelease(AbandonWareLinks)
-	fmt.Println(OriginalReleaseLinks)
-	fmt.Println("------------Finished Checking Links------------")
-	SliceToFile(OriginalReleaseLinks)
+	ChosenLinks := ScrapPageURLs(pageURL)
+	SliceToFile(ChosenLinks)
 
-	fmt.Println("Basic array length:", len(AllLinks))
-	fmt.Printf("Abandonware & Operating systems link array length: %v\n", len(AbandonWareLinks))
-	fmt.Printf("Final link array length: %v\n", len(OriginalReleaseLinks))
+	//AllLinks := ScrapPageURLs(pageURL)
+	//AbandonWareLinks := CheckAbandon(AllLinks)
+	//OriginalReleaseLinks := CheckRelease(AbandonWareLinks)
+	//fmt.Println(OriginalReleaseLinks)
+	//fmt.Println("------------Finished Checking Links------------")
+	//SliceToFile(OriginalReleaseLinks)
+
+	//fmt.Println("Basic array length:", len(AllLinks))
+	//fmt.Printf("Abandonware & Operating systems link array length: %v\n", len(AbandonWareLinks))
+	//fmt.Printf("Final link array length: %v\n", len(OriginalReleaseLinks))
 }
 
 func ScrapPageURLs(url string) []string {
 	var Links []string
+	index := 0
+	indexChosen := 0
 	c := colly.NewCollector()
 	// fmt.Println("......Collector created......")
 
 	c.OnHTML("url > loc", func(e *colly.HTMLElement) {
-		// printing selected link
-		// fmt.Println(e.DOM.Text())
-		Links = append(Links, e.DOM.Text())
+		url := e.DOM.Text()
+		fmt.Printf("%v. Checking url : %v\n", index, url)
+		index++
+		IsOrgignal := CheckOneRelease(url)
+		if IsOrgignal {
+			IsAbandoned := CheckAbandonOne(url)
+			if IsAbandoned {
+				fmt.Printf("___%v. Selected link : %v\n", indexChosen, e.DOM.Text())
+				Links = append(Links, e.DOM.Text())
+				indexChosen++
+			}
+		}
 
 	})
 	c.Visit(url)

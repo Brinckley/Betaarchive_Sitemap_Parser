@@ -6,6 +6,43 @@ import (
 	"strings"
 )
 
+func CheckOneRelease(url string) bool {
+	IsOriginal := false
+	c := colly.NewCollector()
+
+	c.OnHTML("div.col-md-6 > table tr", func(e *colly.HTMLElement) {
+		column1 := e.DOM.Find("td:nth-child(1)").Text()
+		column2 := e.DOM.Find("td:nth-child(2)").Text()
+		if column1 == "Original Release?" {
+			if column2 == "Yes" {
+				// AbandonedLinks = append(AbandonedLinks, colly.) ?????? maybe the way to extract parents link
+				IsOriginal = true
+			}
+		}
+	})
+	c.Visit(url)
+
+	return IsOriginal
+}
+
+func CheckAbandonOne(url string) bool {
+	IsAbandoned := false
+	c := colly.NewCollector()
+
+	c.OnHTML("div.row > div.col > table tr", func(e *colly.HTMLElement) {
+		column1 := e.DOM.Find("td:nth-child(1)").Text()
+		if column1 == "Category" {
+			column2 := e.DOM.Find("td:nth-child(2)").Text()
+			IsAbandoned = strings.Contains(column2, "Abandonware")
+			if IsAbandoned {
+				IsAbandoned = strings.Contains(column2, "Operating Systems")
+			}
+		}
+	})
+	c.Visit(url)
+	return IsAbandoned
+}
+
 func CheckRelease(Links []string) []string {
 	var OriginalReleaseLinks []string
 	IsOriginal := false
