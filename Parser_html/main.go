@@ -8,13 +8,18 @@ import (
 
 func main() {
 	pageURL := "https://www.betaarchive.com/database/sitemap.php"
+	//	SliceToFile([]string{pageURL, pageURL})
 
 	AllLinks := ScrapPageURLs(pageURL)
-	OriginalReleaseLinks := CheckRelease(AllLinks)
-	AbandonWareLinks := CheckAbandon(OriginalReleaseLinks)
-	fmt.Println(AbandonWareLinks)
+	AbandonWareLinks := CheckAbandon(AllLinks)
+	OriginalReleaseLinks := CheckRelease(AbandonWareLinks)
+	fmt.Println(OriginalReleaseLinks)
 	fmt.Println("------------Finished Checking Links------------")
-	SliceToFile(AbandonWareLinks)
+	SliceToFile(OriginalReleaseLinks)
+
+	fmt.Println("Basic array length:", len(AllLinks))
+	fmt.Printf("Abandonware & Operating systems link array length: %v\n", len(AbandonWareLinks))
+	fmt.Printf("Final link array length: %v\n", len(OriginalReleaseLinks))
 }
 
 func ScrapPageURLs(url string) []string {

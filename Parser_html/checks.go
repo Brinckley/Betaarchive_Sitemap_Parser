@@ -23,6 +23,7 @@ func CheckRelease(Links []string) []string {
 	})
 	for i, url := range Links {
 		c.Visit(url)
+		fmt.Printf("#%v. Checking link: %v\n", i, url)
 		if IsOriginal {
 			fmt.Printf("#%v. Original Release Link: %v\n", i, url)
 			OriginalReleaseLinks = append(OriginalReleaseLinks, url)
@@ -43,11 +44,15 @@ func CheckAbandon(Links []string) []string {
 		if column1 == "Category" {
 			column2 := e.DOM.Find("td:nth-child(2)").Text()
 			IsAbandoned = strings.Contains(column2, "Abandonware")
+			if IsAbandoned {
+				IsAbandoned = strings.Contains(column2, "Operating Systems")
+			}
 		}
 	})
 
 	for i, url := range Links {
 		c.Visit(url)
+		fmt.Printf("#%v. Checking link: %v\n", i, url)
 		if IsAbandoned {
 			fmt.Printf("#%v. AbandonWare Link: %v\n", i, url)
 			AbandonWareLinks = append(AbandonWareLinks, url)
