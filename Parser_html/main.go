@@ -1,28 +1,76 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly"
+	"log"
 	"os"
 )
 
 func main() {
-	pageURL := "https://www.betaarchive.com/database/sitemap.php"
-	//	SliceToFile([]string{pageURL, pageURL})
+	//pageURL := "https://www.betaarchive.com/database/sitemap.php"
+	//ScrapIntoFile(pageURL)
 
-	ChosenLinks := ScrapPageURLs(pageURL)
-	SliceToFile(ChosenLinks)
+	AllLinks := ReadFromFile()
+	SliceToFile(AllLinks)
 
-	//AllLinks := ScrapPageURLs(pageURL)
+	//ChosenLinks := ScrapPageURLs(pageURL)
+	//SliceToFile(ChosenLinks)
+
+	// AllLinks := ScrapPageURLs(pageURL)
 	//AbandonWareLinks := CheckAbandon(AllLinks)
 	//OriginalReleaseLinks := CheckRelease(AbandonWareLinks)
 	//fmt.Println(OriginalReleaseLinks)
 	//fmt.Println("------------Finished Checking Links------------")
 	//SliceToFile(OriginalReleaseLinks)
-
+	//
 	//fmt.Println("Basic array length:", len(AllLinks))
 	//fmt.Printf("Abandonware & Operating systems link array length: %v\n", len(AbandonWareLinks))
 	//fmt.Printf("Final link array length: %v\n", len(OriginalReleaseLinks))
+}
+
+func ReadFromFile() []string {
+	file, err := os.Open("AllLinks.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var List []string
+	max := 1000
+	for scanner.Scan() && max > 0 {
+		max--
+		url := scanner.Text()
+		fmt.Printf("%v. Checking url : %v\n", max, url)
+		if CheckAbandonOne(url) {
+			if CheckOneRelease(url) {
+				List = append(List, url)
+				fmt.Println("---------Chosen one :", url)
+			}
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return List
+}
+
+func ScrapIntoFile(url string) {
+	file, err := os.Create("AllLinks.txt")
+	if err != nil {
+		fmt.Println("Error creating file")
+	}
+
+	c := colly.NewCollector()
+	// fmt.Println("......Collector created......")
+
+	c.OnHTML("url > loc", func(e *colly.HTMLElement) {
+		url := e.DOM.Text()
+		file.Write([]byte(url + "\n"))
+	})
+	c.Visit(url)
 }
 
 func ScrapPageURLs(url string) []string {

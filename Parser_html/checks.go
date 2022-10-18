@@ -13,8 +13,8 @@ func CheckOneRelease(url string) bool {
 	c.OnHTML("div.col-md-6 > table tr", func(e *colly.HTMLElement) {
 		column1 := e.DOM.Find("td:nth-child(1)").Text()
 		column2 := e.DOM.Find("td:nth-child(2)").Text()
-		if column1 == "Original Release?" {
-			if column2 == "Yes" {
+		if strings.Contains(column1, "Original Release?") {
+			if strings.Contains(column2, "Yes") {
 				// AbandonedLinks = append(AbandonedLinks, colly.) ?????? maybe the way to extract parents link
 				IsOriginal = true
 			}
@@ -51,8 +51,8 @@ func CheckRelease(Links []string) []string {
 	c.OnHTML("div.col-md-6 > table tr", func(e *colly.HTMLElement) {
 		column1 := e.DOM.Find("td:nth-child(1)").Text()
 		column2 := e.DOM.Find("td:nth-child(2)").Text()
-		if column1 == "Original Release?" {
-			if column2 == "Yes" {
+		if strings.Contains(column1, "Original Release?") {
+			if strings.Contains(column2, "Yes") {
 				// AbandonedLinks = append(AbandonedLinks, colly.) ?????? maybe the way to extract parents link
 				IsOriginal = true
 			}
