@@ -69,12 +69,10 @@ func ScrapURLs(url string, index int) {
 		// title := s.Find("a").Text()
 		link := s.Text()
 		fmt.Printf("Review %d: %s\n", i, link)
-		if i >= 39616 {
-			if ScrapAbandon(link, 0) {
-				if ScrapRelease(link, 0) {
-					file.WriteString(link + "\n")
-					fmt.Println("---Selected :", link)
-				}
+		if ScrapAbandon(link, 0) {
+			if ScrapRelease(link, 0) {
+				file.WriteString(link + "\n")
+				fmt.Println("---Selected :", link)
 			}
 		}
 	})
