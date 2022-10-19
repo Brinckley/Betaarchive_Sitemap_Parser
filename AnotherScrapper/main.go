@@ -12,19 +12,44 @@ import (
 
 func main() {
 	pageURL := "https://www.betaarchive.com/database/sitemap.php"
-
-	ScrapURLs(pageURL)
+	//CheckURLs(pageURL)
+	ScrapURLs(pageURL, 0)
 }
 
-func ScrapURLs(url string) {
-	file, err := os.Create("Links.txt")
+func CheckURLs(url string) {
+	res, err := http.Get(url)
 	if err != nil {
-		fmt.Println("Error creating file")
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	doc.Find("url > loc").Each(func(i int, s *goquery.Selection) {
+		// For each item found, get the title
+		// title := s.Find("a").Text()
+		link := s.Text()
+		fmt.Printf("Review %d: %s\n", i, link)
+	})
+}
+
+func ScrapURLs(url string, index int) {
+	file, err := os.OpenFile("Links.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		panic(err)
 	}
 
 	res, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("FULL RESTART")
+		if index > 15 {
+			log.Fatal(err)
+		}
+		index++
+		ScrapURLs(url, index)
 	}
 	defer res.Body.Close()
 
@@ -44,25 +69,32 @@ func ScrapURLs(url string) {
 		// title := s.Find("a").Text()
 		link := s.Text()
 		fmt.Printf("Review %d: %s\n", i, link)
-		if ScrapAbandon(link) {
-			if ScrapRelease(link) {
-				file.Write([]byte(link + "\n"))
-				fmt.Println("---Selected :", link)
+		if i >= 39616 {
+			if ScrapAbandon(link, 0) {
+				if ScrapRelease(link, 0) {
+					file.WriteString(link + "\n")
+					fmt.Println("---Selected :", link)
+				}
 			}
 		}
 	})
 }
 
-func ScrapAbandon(url string) bool {
+func ScrapAbandon(url string, index int) bool {
 	res, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("...Restarting...")
+		if index > 30 {
+			log.Fatal(err)
+		}
+		index++
+		return ScrapAbandon(url, index)
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-	}
+	//if res.StatusCode != 200 {
+	//	log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	//}
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
@@ -85,10 +117,15 @@ func ScrapAbandon(url string) bool {
 	return IsAbandon
 }
 
-func ScrapRelease(url string) bool {
+func ScrapRelease(url string, index int) bool {
 	res, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("...Restarting...")
+		if index > 30 {
+			log.Fatal(err)
+		}
+		index++
+		return ScrapRelease(url, index)
 	}
 	defer res.Body.Close()
 
