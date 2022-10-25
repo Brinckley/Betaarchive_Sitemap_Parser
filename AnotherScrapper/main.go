@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -37,14 +38,18 @@ func CheckURLs(url string) {
 }
 
 func ScrapURLs(url string, index int) {
-	file, err := os.OpenFile("Links.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	file, err := os.Create("Links.txt")
 	if err != nil {
-		panic(err)
+		fmt.Println("Error creating file")
+		log.Fatal(err)
 	}
 
 	res, err := http.Get(url)
 	if err != nil {
 		fmt.Println("FULL RESTART")
+		if index >= 10 {
+			time.Sleep(time.Second * 30)
+		}
 		if index > 15 {
 			log.Fatal(err)
 		}
@@ -53,9 +58,9 @@ func ScrapURLs(url string, index int) {
 	}
 	defer res.Body.Close()
 
-	//if res.StatusCode != 200 {
-	//	log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-	//}
+	if res.StatusCode != 200 {
+		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	}
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
@@ -69,12 +74,10 @@ func ScrapURLs(url string, index int) {
 		// title := s.Find("a").Text()
 		link := s.Text()
 		fmt.Printf("Review %d: %s\n", i, link)
-		if i >= 39616 {
-			if ScrapAbandon(link, 0) {
-				if ScrapRelease(link, 0) {
-					file.WriteString(link + "\n")
-					fmt.Println("---Selected :", link)
-				}
+		if ScrapAbandon(link, 0) {
+			if ScrapRelease(link, 0) {
+				file.WriteString(link + "\n")
+				fmt.Println("---Selected :", link)
 			}
 		}
 	})
@@ -84,6 +87,9 @@ func ScrapAbandon(url string, index int) bool {
 	res, err := http.Get(url)
 	if err != nil {
 		fmt.Println("...Restarting...")
+		if index >= 15 {
+			time.Sleep(time.Second * 15)
+		}
 		if index > 30 {
 			log.Fatal(err)
 		}
@@ -92,9 +98,9 @@ func ScrapAbandon(url string, index int) bool {
 	}
 	defer res.Body.Close()
 
-	//if res.StatusCode != 200 {
-	//	log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-	//}
+	if res.StatusCode != 200 {
+		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	}
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
