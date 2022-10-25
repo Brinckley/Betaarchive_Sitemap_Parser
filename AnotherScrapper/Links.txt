@@ -409,7 +409,6 @@ https://www.betaarchive.com/database/view_release.php?uuid=9b9f8d63-90f7-4396-84
 https://www.betaarchive.com/database/view_release.php?uuid=5b3c4a44-89d6-4d5d-bf26-73d6763991e4
 https://www.betaarchive.com/database/view_release.php?uuid=c1e90106-88d9-4d38-8469-84b44f35fc26
 https://www.betaarchive.com/database/view_release.php?uuid=aaff26d0-7c8c-4405-881a-eb08022887ef
-https://www.betaarchive.com/database/view_release.php?uuid=aaff26d0-7c8c-4405-881a-eb08022887ef
 https://www.betaarchive.com/database/view_release.php?uuid=3bdfadbb-0783-4b54-977c-8889b6798093
 https://www.betaarchive.com/database/view_release.php?uuid=e0b1b845-f515-4864-a065-721c6bb2ff15
 https://www.betaarchive.com/database/view_release.php?uuid=a058bdc2-fb7c-42ab-8620-97a0fa86cd87
